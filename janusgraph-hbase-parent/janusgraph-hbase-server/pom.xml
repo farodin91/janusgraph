@@ -115,7 +115,7 @@
         <profile>
             <id>hbase2</id>
             <properties>
-                <hbase.server.version>${hbase2.version}</hbase.server.version>
+                <hbase.server.version>2.2.0</hbase.server.version>
             </properties>
         </profile>
     </profiles>
