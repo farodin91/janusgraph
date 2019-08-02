@@ -225,20 +225,20 @@ jobs:
         - echo "Download documentation generator";
           curl -sfL https://raw.githubusercontent.com/containous/structor/master/godownloader.sh | bash -s -- -b $GOPATH/bin v1.7.1
         - echo "Build documentation";
-          structor -o janusgraph -r janusgraph \
-            --dockerfile-url="https://raw.githubusercontent.com/janusgraph/janusgraph/v0.3/docs.Dockerfile" \
-            --menu.js-url="https://raw.githubusercontent.com/janusgraph/janusgraph/v0.3/docs/theme/structor-menu.js.gotmpl" \
+          structor -o farodin91 -r janusgraph \
+            --dockerfile-url="https://raw.githubusercontent.com/farodin91/janusgraph/v0.3/docs.Dockerfile" \
+            --menu.js-url="https://raw.githubusercontent.com/farodin91/janusgraph/v0.3/docs/theme/structor-menu.js.gotmpl" \
             --exp-branch=v0.3 --debug;
       deploy:
         provider: pages
-        repo: janusgraph/janusgraph
+        repo: farodin91/janusgraph
         edge: false
         github_token: ${GITHUB_TOKEN}
         local_dir: site
         skip_cleanup: true
         on:
           all_branches: true
-          condition: $TRAVIS_BRANCH =~ ^master$|^v[0-9.]+$
+          condition: $TRAVIS_BRANCH =~ ^master$|^v[0-9.]+|mkdocs03$
 
   # https://docs.travis-ci.com/user/customizing-the-build#Rows-that-are-Allowed-to-Fail
   allow_failures:
