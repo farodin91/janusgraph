@@ -212,23 +212,26 @@ jobs:
     - stage: documentation
       install: docker build -t doc-site:mkdocs -f docs.Dockerfile .
       script:
+        - git branch --remotes --list origin\/v*
         - echo "Updating configuration markdown";
           mvn --quiet clean install -DskipTests=true -pl janusgraph-doc -am;
+        - echo "Check for changes in configuration";
+          git diff  --exit-code docs/basics/janusgraph-cfg.md;
         - docker run --rm -v $PWD:/mkdocs doc-site:mkdocs mkdocs build
     
     - stage: deploy
       install: skip
       script: skip
       before_deploy:
-        - echo "Updating configuration markdown";
-          mvn --quiet clean install -DskipTests=true -pl janusgraph-doc -am;
         - echo "Download documentation generator";
-          curl -sfL https://raw.githubusercontent.com/containous/structor/master/godownloader.sh | bash -s -- -b $GOPATH/bin v1.7.1
+          curl -sfL https://raw.githubusercontent.com/containous/structor/master/godownloader.sh | bash -s -- -b $GOPATH/bin v1.9.0
         - echo "Build documentation";
           structor -o farodin91 -r janusgraph \
+            --force-edit-url \
+            --rqts-url="https://raw.githubusercontent.com/farodin91/janusgraph/v0.3/requirements.txt"
             --dockerfile-url="https://raw.githubusercontent.com/farodin91/janusgraph/v0.3/docs.Dockerfile" \
             --menu.js-url="https://raw.githubusercontent.com/farodin91/janusgraph/v0.3/docs/theme/structor-menu.js.gotmpl" \
-            --exp-branch=v0.3 --debug;
+            --exp-branch=mkdocs03 --debug;
       deploy:
         provider: pages
         repo: farodin91/janusgraph

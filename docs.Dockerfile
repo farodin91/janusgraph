@@ -21,12 +21,5 @@ COPY requirements.txt /mkdocs/
 WORKDIR /mkdocs
 VOLUME /mkdocs
 
-RUN apk add --no-cache python3 git && \
-    python3 -m ensurepip && \
-    rm -r /usr/lib/python*/ensurepip && \
-    pip3 install --upgrade pip==19.0.3 setuptools==40.8.0 && \
-    if [ ! -e /usr/bin/pip ]; then ln -s pip3 /usr/bin/pip ; fi && \
-    if [ ! -e /usr/bin/python ]; then ln -sf /usr/bin/python3 /usr/bin/python; fi && \
-    rm -r /root/.cache
-
-RUN pip install --user -r requirements.txt
+RUN apk --no-cache --no-progress add py3-pip \
+  && pip3 install --user -r requirements.txt
