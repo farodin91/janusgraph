@@ -28,7 +28,7 @@ public class BerkeleySolrTest extends SolrJanusGraphIndexTest {
 
     @Override
     public WriteConfiguration getConfiguration() {
-        ModifiableConfiguration config = getBerkeleyJEConfiguration();
+        ModifiableConfiguration config = getBerkeleyJEConfiguration(getClass().getName());
         //Add index
         config.set(INDEX_BACKEND,"solr",INDEX);
         config.set(SolrIndex.ZOOKEEPER_URL, SolrRunner.getZookeeperUrls(), INDEX);

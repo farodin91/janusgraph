@@ -24,7 +24,7 @@ public class BerkeleyKeyValueTest extends KeyValueStoreTest {
 
     @Override
     public OrderedKeyValueStoreManager openStorageManager() throws BackendException {
-        return new BerkeleyJEStoreManager(BerkeleyStorageSetup.getBerkeleyJEConfiguration());
+        return new BerkeleyJEStoreManager(BerkeleyStorageSetup.getBerkeleyJEConfiguration(getClass().getName()));
     }
 
 

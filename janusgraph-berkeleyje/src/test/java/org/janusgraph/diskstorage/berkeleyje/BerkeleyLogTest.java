@@ -24,7 +24,7 @@ import org.janusgraph.diskstorage.log.KCVSLogTest;
 public class BerkeleyLogTest extends KCVSLogTest {
 
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        BerkeleyJEStoreManager sm = new BerkeleyJEStoreManager(BerkeleyStorageSetup.getBerkeleyJEConfiguration());
+        BerkeleyJEStoreManager sm = new BerkeleyJEStoreManager(BerkeleyStorageSetup.getBerkeleyJEConfiguration(getClass().getName()));
         return new OrderedKeyValueStoreManagerAdapter(sm);
     }
 

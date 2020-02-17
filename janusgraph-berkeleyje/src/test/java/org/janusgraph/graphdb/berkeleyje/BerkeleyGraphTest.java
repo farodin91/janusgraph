@@ -44,7 +44,7 @@ public class BerkeleyGraphTest extends JanusGraphTest {
 
     @Override
     public WriteConfiguration getConfiguration() {
-        ModifiableConfiguration modifiableConfiguration = BerkeleyStorageSetup.getBerkeleyJEConfiguration();
+        ModifiableConfiguration modifiableConfiguration = BerkeleyStorageSetup.getBerkeleyJEConfiguration(getClass().getName());
         String methodName = testInfo.getTestMethod().toString();
         if (methodName.equals("testConsistencyEnforcement")) {
             IsolationLevel iso = IsolationLevel.SERIALIZABLE;

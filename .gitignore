@@ -61,3 +61,7 @@ cov-int.tar.gz
 cov-int/
 
 /site/
+.gradle
+**/build/
+**/build/
+janusgraph-core/build/classes/java/main/org/janusgraph/core/Cardinality.class

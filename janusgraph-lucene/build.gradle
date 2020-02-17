@@ -1,0 +1,13 @@
+dependencies {
+    compile project(':janusgraph-core')
+    compile 'org.apache.lucene:lucene-core:7.0.0'
+    compile 'org.apache.lucene:lucene-analyzers-common:7.0.0'
+    compile 'org.apache.lucene:lucene-queryparser:7.0.0'
+    compile 'org.apache.lucene:lucene-spatial:7.0.0'
+    compile 'org.apache.lucene:lucene-spatial-extras:7.0.0'
+    testCompile project(':janusgraph-backend-testutils')
+    testCompile project(':janusgraph-berkeleyje')
+    testCompile project(path: ':janusgraph-berkeleyje', configuration: 'testOutput')
+}
+
+description = 'JanusGraph-Lucene: Indexing Support'

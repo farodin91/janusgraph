@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Test;
 public class BerkeleyFixedLengthKCVSTest extends KeyColumnValueStoreTest {
 
     public KeyColumnValueStoreManager openStorageManager() throws BackendException {
-        BerkeleyJEStoreManager sm = new BerkeleyJEStoreManager(BerkeleyStorageSetup.getBerkeleyJEConfiguration());
+        BerkeleyJEStoreManager sm = new BerkeleyJEStoreManager(BerkeleyStorageSetup.getBerkeleyJEConfiguration(getClass().getName()));
         return new OrderedKeyValueStoreManagerAdapter(sm, ImmutableMap.of(storeName, 8));
     }
 

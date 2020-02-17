@@ -45,7 +45,7 @@ public class BerkeleyElasticsearchTest extends JanusGraphIndexTest {
 
     @Override
     public WriteConfiguration getConfiguration() {
-        return esr.setConfiguration(getBerkeleyJEConfiguration(), INDEX)
+        return esr.setConfiguration(getBerkeleyJEConfiguration(getClass().getName()), INDEX)
             .set(GraphDatabaseConfiguration.INDEX_MAX_RESULT_SET_SIZE, 3, INDEX)
             .getConfiguration();
     }

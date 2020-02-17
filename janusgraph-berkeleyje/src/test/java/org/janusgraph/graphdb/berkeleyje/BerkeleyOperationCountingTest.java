@@ -24,7 +24,7 @@ public class BerkeleyOperationCountingTest extends JanusGraphOperationCountingTe
 
     @Override
     public WriteConfiguration getBaseConfiguration() {
-        return BerkeleyStorageSetup.getBerkeleyJEGraphConfiguration();
+        return BerkeleyStorageSetup.getBerkeleyJEGraphConfiguration(getClass().getName());
     }
 
     @Override

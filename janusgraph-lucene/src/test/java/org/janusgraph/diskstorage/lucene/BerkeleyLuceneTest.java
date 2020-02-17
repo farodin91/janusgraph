@@ -22,6 +22,9 @@ import org.janusgraph.graphdb.JanusGraphIndexTest;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.junit.jupiter.api.Test;
 
+import java.nio.file.Paths;
+
+import static org.janusgraph.StorageSetup.getHomeDir;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.INDEX_BACKEND;
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.INDEX_DIRECTORY;
 import static org.janusgraph.BerkeleyStorageSetup.getBerkeleyJEConfiguration;
@@ -38,10 +41,11 @@ public class BerkeleyLuceneTest extends JanusGraphIndexTest {
 
     @Override
     public WriteConfiguration getConfiguration() {
-        ModifiableConfiguration config = getBerkeleyJEConfiguration();
+        String className = getClass().getName();
+        ModifiableConfiguration config = getBerkeleyJEConfiguration(className);
         //Add index
-        config.set(INDEX_BACKEND,"lucene",INDEX);
-        config.set(INDEX_DIRECTORY, StorageSetup.getHomeDir("lucene"),INDEX);
+        config.set(INDEX_BACKEND,"lucene", INDEX);
+        config.set(INDEX_DIRECTORY, Paths.get(getHomeDir("berkeleyje"), className).toString(),INDEX);
         return config.getConfiguration();
     }
 

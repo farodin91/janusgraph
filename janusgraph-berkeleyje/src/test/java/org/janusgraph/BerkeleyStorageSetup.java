@@ -20,6 +20,7 @@ import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 
 import static org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration.*;
 
+import java.nio.file.Paths;
 import java.time.Instant;
 
 import com.sleepycat.je.dbi.TTL;
@@ -43,23 +44,20 @@ public class BerkeleyStorageSetup extends StorageSetup {
         });
     }
 
-    public static ModifiableConfiguration getBerkeleyJEConfiguration(String dir) {
+    public static ModifiableConfiguration getBerkeleyJEConfiguration(String className) {
         return buildGraphConfiguration()
                 .set(STORAGE_BACKEND,"berkeleyje")
-                .set(STORAGE_DIRECTORY, dir)
+                .set(STORAGE_DIRECTORY,  Paths.get(getHomeDir("berkeleyje"), className).toString())
                 .set(DROP_ON_CLEAR, false);
     }
 
-    public static ModifiableConfiguration getBerkeleyJEConfiguration() {
-        return getBerkeleyJEConfiguration(getHomeDir("berkeleyje"));
+
+    public static WriteConfiguration getBerkeleyJEGraphConfiguration(String className) {
+        return getBerkeleyJEConfiguration(className).getConfiguration();
     }
 
-    public static WriteConfiguration getBerkeleyJEGraphConfiguration() {
-        return getBerkeleyJEConfiguration().getConfiguration();
-    }
-
-    public static ModifiableConfiguration getBerkeleyJEPerformanceConfiguration() {
-        return getBerkeleyJEConfiguration()
+    public static ModifiableConfiguration getBerkeleyJEPerformanceConfiguration(String className) {
+        return getBerkeleyJEConfiguration(className)
                 .set(STORAGE_TRANSACTIONAL,false)
                 .set(TX_CACHE_SIZE,1000);
     }

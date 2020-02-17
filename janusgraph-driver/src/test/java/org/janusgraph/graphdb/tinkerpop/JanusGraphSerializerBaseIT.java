@@ -17,23 +17,16 @@ package org.janusgraph.graphdb.tinkerpop;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
 import org.apache.tinkerpop.gremlin.structure.Edge;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.janusgraph.core.JanusGraphContainer;
 import org.janusgraph.core.attribute.Geoshape;
 import org.janusgraph.core.attribute.Text;
 import org.janusgraph.graphdb.relations.RelationIdentifier;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInfo;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
-@Testcontainers
 public abstract class JanusGraphSerializerBaseIT {
-
-    @Container
-    public static final JanusGraphContainer janusGraphContainer = new JanusGraphContainer();
 
     protected abstract GraphTraversalSource traversal();
 

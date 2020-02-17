@@ -1,0 +1,20 @@
+dependencies {
+    compile project(':janusgraph-core')
+    compile 'com.sleepycat:je:7.5.11'
+    testCompile project(':janusgraph-backend-testutils')
+}
+
+description = 'JanusGraph-BerkeleyJE: Distributed Graph Database'
+
+configurations {
+    testOutput.extendsFrom (testCompile)
+}
+
+task jarTest (type: Jar, dependsOn: testClasses) {
+    from sourceSets.test.output
+    classifier = 'test'
+}
+
+artifacts {
+    testOutput jarTest
+}

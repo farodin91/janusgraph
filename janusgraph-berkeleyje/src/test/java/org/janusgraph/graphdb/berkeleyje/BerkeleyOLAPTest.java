@@ -22,7 +22,7 @@ public class BerkeleyOLAPTest extends OLAPTest {
 
     @Override
     public WriteConfiguration getConfiguration() {
-        return BerkeleyStorageSetup.getBerkeleyJEGraphConfiguration();
+        return BerkeleyStorageSetup.getBerkeleyJEGraphConfiguration(getClass().getName());
     }
 
 }

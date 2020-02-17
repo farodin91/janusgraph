@@ -20,6 +20,6 @@ import org.janusgraph.diskstorage.configuration.WriteConfiguration;
 public class BerkeleyManagementTest extends ManagementTest {
     @Override
     public WriteConfiguration getConfiguration() {
-        return BerkeleyStorageSetup.getBerkeleyJEGraphConfiguration();
+        return BerkeleyStorageSetup.getBerkeleyJEGraphConfiguration(getClass().getName());
     }
 }

@@ -1,0 +1,17 @@
+dependencies {
+    compile 'org.apache.tinkerpop:gremlin-core'
+    compile 'org.apache.tinkerpop:gremlin-driver'
+    compile 'com.google.guava:guava'
+    compile 'org.noggit:noggit:0.6'
+    compile 'org.locationtech.spatial4j:spatial4j:0.7'
+    compile 'org.locationtech.jts:jts-core:1.15.0'
+    compile 'org.apache.commons:commons-text:1.0'
+    testCompile 'org.junit.platform:junit-platform-launcher'
+    testCompile 'org.junit.jupiter:junit-jupiter-params'
+    testCompile 'org.junit.jupiter:junit-jupiter-api'
+    testCompile 'org.junit.jupiter:junit-jupiter-engine'
+    testCompile 'org.testcontainers:testcontainers'
+    testCompile 'org.testcontainers:junit-jupiter'
+}
+
+description = 'JanusGraph-Driver: Gremlin-Driver Library for JanusGraph'

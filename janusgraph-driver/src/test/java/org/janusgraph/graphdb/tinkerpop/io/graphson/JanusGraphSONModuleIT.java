@@ -16,9 +16,17 @@ package org.janusgraph.graphdb.tinkerpop.io.graphson;
 
 import org.apache.tinkerpop.gremlin.process.traversal.AnonymousTraversalSource;
 import org.apache.tinkerpop.gremlin.process.traversal.dsl.graph.GraphTraversalSource;
+import org.janusgraph.core.JanusGraphContainer;
 import org.janusgraph.graphdb.tinkerpop.JanusGraphSerializerBaseIT;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.junit.jupiter.Container;
 
+@Testcontainers
 public class JanusGraphSONModuleIT extends JanusGraphSerializerBaseIT {
+
+    @Container
+    public static final JanusGraphContainer janusGraphContainer = new JanusGraphContainer();
+
     @Override
     protected GraphTraversalSource traversal() {
         return AnonymousTraversalSource.traversal().withRemote(janusGraphContainer.remoteConnectionWithGraphSONV3d0());

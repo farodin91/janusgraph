@@ -24,7 +24,7 @@ public class BerkeleyPartitionGraphTest extends JanusGraphPartitionGraphTest {
 
     @Override
     public WriteConfiguration getBaseConfiguration() {
-        return BerkeleyStorageSetup.getBerkeleyJEGraphConfiguration();
+        return BerkeleyStorageSetup.getBerkeleyJEGraphConfiguration(getClass().getName());
     }
 
     /*

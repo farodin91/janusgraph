@@ -22,7 +22,7 @@ public class BerkeleyGraphPerformanceMemoryTest extends JanusGraphPerformanceMem
 
     @Override
     public WriteConfiguration getConfiguration() {
-        return BerkeleyStorageSetup.getBerkeleyJEGraphConfiguration();
+        return BerkeleyStorageSetup.getBerkeleyJEGraphConfiguration(getClass().getName());
     }
 
 

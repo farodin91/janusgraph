@@ -1,0 +1,26 @@
+configurations {
+    testOutput.extendsFrom (testCompile)
+}
+
+dependencies {
+    compile 'org.apache.tinkerpop:tinkergraph-gremlin'
+    compile 'org.apache.tinkerpop:hadoop-gremlin'
+    compile 'org.apache.tinkerpop:spark-gremlin'
+    compile 'com.fasterxml.jackson.module:jackson-module-scala_2.11:2.10.2'
+    compile 'org.apache.hadoop:hadoop-client:2.7.7'
+    compile project(':janusgraph-core')
+    testCompile project(':janusgraph-backend-testutils')
+    testCompile 'org.testcontainers:testcontainers'
+    testCompile 'org.testcontainers:junit-jupiter'
+}
+
+description = 'JanusGraph-Hadoop: Module'
+
+task jarTest (type: Jar, dependsOn: testClasses) {
+    from sourceSets.test.output
+    classifier = 'test'
+}
+
+artifacts {
+    testOutput jarTest
+}

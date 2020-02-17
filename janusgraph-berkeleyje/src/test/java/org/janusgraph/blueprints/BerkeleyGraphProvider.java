@@ -30,7 +30,7 @@ public class BerkeleyGraphProvider extends AbstractJanusGraphProvider {
 
     @Override
     public ModifiableConfiguration getJanusGraphConfiguration(String graphName, Class<?> test, String testMethodName) {
-        return BerkeleyStorageSetup.getBerkeleyJEConfiguration(StorageSetup.getHomeDir(graphName)).set(GraphDatabaseConfiguration.IDAUTHORITY_WAIT, Duration.ofMillis(150L));
+        return BerkeleyStorageSetup.getBerkeleyJEConfiguration(graphName).set(GraphDatabaseConfiguration.IDAUTHORITY_WAIT, Duration.ofMillis(150L));
     }
 
     @Override
