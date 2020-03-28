@@ -71,18 +71,20 @@ subprojects {
             excludeTestsMatching "*PerformanceTest"
             excludeTestsMatching "*ConcurrentTest"
             excludeTestsMatching "*Groovy*Test"
-            excludeTestsMatching "*ComputerTest"
-            excludeTestsMatching "*ProcessTest"
             excludeTestsMatching "*ProcessPerformanceTest"
-            excludeTestsMatching "*StructureTest"
+            if (hasProperty('testTinkerPop')) {
+                excludeTestsMatching "*ComputerTest"
+                excludeTestsMatching "*ProcessTest"
+                excludeTestsMatching "*StructureTest"
+            }
         }
         useJUnitPlatform {
             excludeTags 'MEMORY_TESTS', 'PERFORMANCE_TESTS', 'BRITTLE_TESTS'
-             systemProperties = [
-                'junit.jupiter.execution.parallel.enabled': 'true',
-                'junit.jupiter.execution.parallel.mode.default': 'concurrent',
-                'junit.jupiter.testinstance.lifecycle.default': 'per_class'
-            ]
+            
+            systemProperty('junit.jupiter.execution.parallel.enabled', 'true')
+            systemProperty('junit.jupiter.execution.parallel.mode.default', 'concurrent')
+            systemProperty('junit.jupiter.execution.parallel.config.dynamic.factor', 0.5)
+            systemProperty('junit.jupiter.testinstance.lifecycle.default', 'per_class')
         }
     }
 

@@ -65,3 +65,4 @@ cov-int/
 **/build/
 **/build/
 janusgraph-core/build/classes/java/main/org/janusgraph/core/Cardinality.class
+janusgraph-inmemory/file:

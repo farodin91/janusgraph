@@ -43,16 +43,16 @@ stages:
 x-template-full:
   &FULL_BUILD_JOB
   stage: test
-  install: travis_wait mvn clean install --projects janusgraph-${MODULE} --also-make -DskipTests=true
-    -Dmaven.javadoc.skip=true --batch-mode --show-version ${INSTALL_ARGS};
-  script: travis_wait 50 mvn verify --projects janusgraph-${MODULE} ${ARGS};
+  install: ./gradlew clean :janusgraph-${MODULE}:compileTestJava
+  script: ./gradlew :janusgraph-${MODULE}:test ${ARGS}
+  after_success: bash <(curl -s https://codecov.io/bash);
   if: type = cron OR commit_message =~ /\[full build\]/
 
 x-template-standard:
   &STANDARD_TEST_JOB
   stage: test
   install: ./gradlew clean :janusgraph-${MODULE}:compileTestJava
-  script: ./gradlew :janusgraph-${MODULE}:test
+  script: ./gradlew :janusgraph-${MODULE}:test ${ARGS}
   after_success: bash <(curl -s https://codecov.io/bash);
   if: commit_message !~ /\[doc only\]/
 
@@ -65,7 +65,7 @@ jobs:
     - <<: *STANDARD_TEST_JOB
       env: MODULE='server'
     - <<: *STANDARD_TEST_JOB
-      env: MODULE='inmemory' ARGS='-Dtest.skip.tp=false'
+      env: MODULE='inmemory' ARGS='-PtestTinkerPop=true'
     - <<: *STANDARD_TEST_JOB
       env: MODULE='berkeleyje'
     - <<: *STANDARD_TEST_JOB
@@ -73,22 +73,32 @@ jobs:
     - <<: *STANDARD_TEST_JOB
       env: MODULE='solr' ARGS='-Pdocker,solr7'
     - <<: *STANDARD_TEST_JOB
-      env: MODULE='es' ARGS='-Pelasticsearch7'
+      env: MODULE='es' ARGS='-PtestProfile=elasticsearch7'
     - <<: *STANDARD_TEST_JOB
-      env: MODULE='es' ARGS='-Pelasticsearch6'
+      env: MODULE='es' ARGS='-PtestProfile=elasticsearch6'
     - <<: *STANDARD_TEST_JOB
-      env: MODULE='es' ARGS='-Pelasticsearch60'
+      env: MODULE='es' ARGS='-PtestProfile=elasticsearch60'
 
     - <<: *STANDARD_TEST_JOB
       env: MODULE='hbase-parent/janusgraph-hbase-10'
     - <<: *STANDARD_TEST_JOB
       env: MODULE='hbase-parent/janusgraph-hbase-10' INSTALL_ARGS='-Dhbase.profile -Phbase2' ARGS='-Dhbase.profile -Phbase2'
     - <<: *STANDARD_TEST_JOB
-      env: MODULE='cql' ARGS='-Pcassandra2-byteordered
+      env: MODULE='cql' ARGS='-PtestProfile=cassandra3-byteordered'
     - <<: *STANDARD_TEST_JOB
-      env: MODULE='cql' ARGS='-Pcassandra2-murmur
+      env: MODULE='cql' ARGS='-PtestProfile=cassandra3-murmur'
     - <<: *STANDARD_TEST_JOB
-      env: MODULE='cql' ARGS='-Pcassandra2-murmur-ssl
+      env: MODULE='cql' ARGS='-PtestProfile=cassandra3-murmur-ssl'
+    - <<: *STANDARD_TEST_JOB
+      env: MODULE='cql' ARGS='-PtestProfile=cassandra3-murmur-client-auth'
+    - <<: *FULL_BUILD_JOB
+      env: MODULE='cql' ARGS='-PtestProfile=cassandra2-byteordered'
+    - <<: *FULL_BUILD_JOB
+      env: MODULE='cql' ARGS='-PtestProfile=cassandra2-murmur'
+    - <<: *FULL_BUILD_JOB
+      env: MODULE='cql' ARGS='-PtestProfile=cassandra2-murmur-ssl'
+    - <<: *FULL_BUILD_JOB
+      env: MODULE='cql' ARGS='-PtestProfile=cassandra2-murmur-client-auth'
 
     - stage: test
       env: COVERITY_ONLY=true

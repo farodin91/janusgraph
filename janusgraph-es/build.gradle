@@ -28,3 +28,21 @@ task testsJar(type: Jar) {
     from(sourceSets.test.output)
 }
 
+test {
+    if (!hasProperty('testProfile')) ext.testProfile = 'elasticsearch7'
+    def elasticsearchDockerImage = 'docker.elastic.co/elasticsearch/elasticsearch'
+    def elasticsearchDockerVersion = '7.6.1'
+    switch (testProfile) {
+        case 'elasticsearch6':
+            elasticsearchDockerVersion = '6.6.0'
+            break
+        case 'elasticsearch60':
+            elasticsearchDockerVersion = '6.0.1'
+            break
+    }
+    useJUnitPlatform {
+        systemProperty('elasticsearch.docker.image', elasticsearchDockerImage)
+        systemProperty('elasticsearch.docker.version', elasticsearchDockerVersion)
+    }
+}
+
