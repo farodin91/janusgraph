@@ -111,7 +111,7 @@
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>janusgraph-hbase-core</artifactId>
+            <artifactId>janusgraph-hbase</artifactId>
             <version>${project.version}</version>
             <classifier>tests</classifier>
             <scope>test</scope>

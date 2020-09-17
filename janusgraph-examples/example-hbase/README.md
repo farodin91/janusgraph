@@ -54,7 +54,7 @@ rather than sharing a common Zookeeper with HBase.
 
 ## Dependencies
 
-The required Maven dependencies for HBase:
+The required Maven dependencies for  2:
 
 ```
         <dependency>
@@ -66,7 +66,7 @@ The required Maven dependencies for HBase:
         <dependency>
             <groupId>org.apache.hbase</groupId>
             <artifactId>hbase-shaded-client</artifactId>
-            <version>${hbase1.version}</version>
+            <version>${hbase2.version}</version>
             <scope>runtime</scope>
         </dependency>
 ```

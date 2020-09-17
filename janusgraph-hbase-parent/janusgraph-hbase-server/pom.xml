@@ -12,6 +12,7 @@
     
     <properties>
         <top.level.basedir>${basedir}/../..</top.level.basedir>
+        <hbase.server.version>2.1.0</hbase.server.version>
     </properties>
     
     <dependencies>
@@ -28,23 +29,6 @@
             </exclusions>
         </dependency>
     </dependencies>
-    
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-            <!-- Avoid being overwritten by the top level pom. Used here only by the HBase server.
-              -->
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>14.0</version>
-            </dependency>
-            <dependency>
-            <groupId>org.jruby.jcodings</groupId>
-            <artifactId>jcodings</artifactId>
-            <version>1.0.18</version>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <sourceDirectory>src/main/java</sourceDirectory>
@@ -116,24 +100,4 @@
             </plugin>
         </plugins>
     </build>
-    
-    <profiles>
-        <profile>
-            <id>hbase1</id>
-            <properties>
-                <hbase.server.version>${hbase1.version}</hbase.server.version>
-            </properties>
-        </profile>
-        <profile>
-            <id>hbase2</id>
-            <activation>
-                <property>
-                    <name>!hbase.profile</name>
-                </property>
-            </activation>
-            <properties>
-                <hbase.server.version>${hbase2.version}</hbase.server.version>
-            </properties>
-        </profile>
-    </profiles>
 </project>
