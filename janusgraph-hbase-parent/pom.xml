@@ -83,7 +83,7 @@
                                 <artifactItems>
                                     <artifactItem>
                                         <groupId>${project.groupId}</groupId>
-                                        <artifactId>janusgraph-hbase-core</artifactId>
+                                        <artifactId>janusgraph-hbase</artifactId>
                                         <version>${project.version}</version>
                                         <classifier>tests</classifier>
                                         <outputDirectory>${project.build.directory}/test-classes</outputDirectory>

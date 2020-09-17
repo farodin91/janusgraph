@@ -95,11 +95,11 @@ jobs:
       env: MODULE='berkeleyje'
 
     - <<: *STANDARD_TEST_JOB
-      env: MODULE='hbase-parent/janusgraph-hbase-20' ARGS='-Dtest=**/diskstorage/hbase/*'
+      env: MODULE='hbase-parent/janusgraph-hbase' ARGS='-Dtest=**/diskstorage/hbase/*'
     - <<: *STANDARD_TEST_JOB
-      env: MODULE='hbase-parent/janusgraph-hbase-20' ARGS='-Dtest=**/graphdb/hbase/*'
+      env: MODULE='hbase-parent/janusgraph-hbase' ARGS='-Dtest=**/graphdb/hbase/*'
     - <<: *STANDARD_TEST_JOB
-      env: MODULE='hbase-parent/janusgraph-hbase-20' ARGS='-Dtest=**/hadoop/*'
+      env: MODULE='hbase-parent/janusgraph-hbase' ARGS='-Dtest=**/hadoop/*'
     - <<: *STANDARD_TEST_JOB
       env: MODULE='cql' ARGS='-Pcassandra3-byteordered -Dtest=**/diskstorage/cql/*'
     - <<: *STANDARD_TEST_JOB

@@ -224,7 +224,6 @@ public class HBaseSnapshotInputFormatIT extends AbstractInputFormatIT {
     }
 
     @Test
-    @Override
     public void testReadWithMetaProperties() throws Exception {
         GraphOfTheGodsFactory.load(graph, null, true);
         GraphTraversalSource t = graph.traversal();
