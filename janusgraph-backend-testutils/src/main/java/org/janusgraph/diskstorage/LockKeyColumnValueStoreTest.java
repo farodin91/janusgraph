@@ -53,8 +53,9 @@ import org.janusgraph.diskstorage.locking.consistentkey.ExpectedValueCheckingSto
 import org.janusgraph.diskstorage.locking.consistentkey.ExpectedValueCheckingTransaction;
 import org.janusgraph.graphdb.configuration.GraphDatabaseConfiguration;
 
-import static org.easymock.EasyMock.*;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.verify;
 
 public abstract class LockKeyColumnValueStoreTest extends AbstractKCVSTest {
 
@@ -369,7 +370,6 @@ public abstract class LockKeyColumnValueStoreTest extends AbstractKCVSTest {
 
     @Test
     public void testLocksOnMultipleStores() throws Exception {
-
         //the number of stores must be a multiple of 3
         final int numStores = 6;
         final StaticBuffer key  = BufferUtil.getLongBuffer(1);
@@ -377,8 +377,8 @@ public abstract class LockKeyColumnValueStoreTest extends AbstractKCVSTest {
         final StaticBuffer val2 = BufferUtil.getLongBuffer(8);
 
         // Create mocks
-        LockerProvider mockLockerProvider = createStrictMock(LockerProvider.class);
-        Locker mockLocker = createStrictMock(Locker.class);
+        LockerProvider mockLockerProvider = mock(LockerProvider.class);
+        Locker mockLocker = mock(Locker.class);
 
         // Create EVCSManager with mockLockerProvider
         ExpectedValueCheckingStoreManager expManager =
@@ -390,18 +390,7 @@ public abstract class LockKeyColumnValueStoreTest extends AbstractKCVSTest {
         ExpectedValueCheckingTransaction tx = expManager.beginTransaction(txCfg);
 
         // openDatabase calls getLocker, and we do it numStores times
-        expect(mockLockerProvider.getLocker(anyObject(String.class))).andReturn(mockLocker).times(numStores);
-
-        // acquireLock calls writeLock, and we do it 2/3 * numStores times
-        mockLocker.writeLock(eq(new KeyColumn(key, col)), eq(tx.getConsistentTx()));
-        expectLastCall().times(numStores / 3 * 2);
-
-        // mutateMany calls checkLocks, and we do it 2/3 * numStores times
-        mockLocker.checkLocks(tx.getConsistentTx());
-        expectLastCall().times(numStores / 3 * 2);
-
-        replay(mockLockerProvider);
-        replay(mockLocker);
+        when(mockLockerProvider.getLocker(anyString())).thenReturn(mockLocker);//times 1
 
         /*
          * Acquire a lock on several distinct stores (numStores total distinct
@@ -427,9 +416,10 @@ public abstract class LockKeyColumnValueStoreTest extends AbstractKCVSTest {
         // Shutdown
         expManager.close();
 
-        // Check the mocks
-        verify(mockLockerProvider);
-        verify(mockLocker);
+        // acquireLock calls writeLock, and we do it 2/3 * numStores times
+        verify(mockLocker, times(numStores / 3 * 2)).writeLock(eq(new KeyColumn(key, col)), eq(tx.getConsistentTx()));
+        // mutateMany calls checkLocks, and we do it 2/3 * numStores times
+        verify(mockLocker, times(numStores / 3 * 2)).checkLocks(tx.getConsistentTx());
     }
 
     private void tryWrites(KeyColumnValueStore store1, KeyColumnValueStoreManager keyColumnValueStoreManager,

@@ -19,25 +19,17 @@ import org.janusgraph.core.JanusGraph;
 
 import java.util.Map;
 
-import static org.easymock.EasyMock.createMock;
-import static org.easymock.EasyMock.createMockBuilder;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.Mockito.*;
 
 public class MockedSimpleAuthenticatorFactory implements MockedJanusGraphAuthenticatorFactory {
 
     public JanusGraphAbstractAuthenticator createInitializedAuthenticator(final Map<String, Object> config,
                                                                           final JanusGraph graph) {
-        final JanusGraphSimpleAuthenticator authenticator = createMockBuilder(JanusGraphSimpleAuthenticator.class)
-            .addMockedMethod("openGraph")
-            .addMockedMethod("createSimpleAuthenticator")
-            .createMock();
-        final SimpleAuthenticator sa = createMock(SimpleAuthenticator.class);
-        expect(authenticator.createSimpleAuthenticator()).andReturn(sa);
-        expect(authenticator.openGraph(isA(String.class))).andReturn(graph);
+        final JanusGraphSimpleAuthenticator authenticator = spy(JanusGraphSimpleAuthenticator.class);
+        final SimpleAuthenticator sa = mock(SimpleAuthenticator.class);
+        doReturn(graph).when(authenticator).openGraph(anyString());
+        doReturn(sa).when(authenticator).createSimpleAuthenticator();
         sa.setup(config);
-        replay(authenticator);
         return authenticator;
     }
 }

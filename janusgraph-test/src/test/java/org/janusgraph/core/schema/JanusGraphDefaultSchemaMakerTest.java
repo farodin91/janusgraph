@@ -14,22 +14,19 @@
 
 package org.janusgraph.core.schema;
 
-import static org.easymock.EasyMock.expect;
-
-import org.easymock.EasyMockSupport;
-import org.janusgraph.core.schema.JanusGraphDefaultSchemaMaker;
 import org.junit.jupiter.api.Test;
 
 import org.janusgraph.core.attribute.Geoshape;
 import org.janusgraph.core.Cardinality;
 import org.janusgraph.core.PropertyKey;
-import org.janusgraph.core.schema.PropertyKeyMaker;
-import org.janusgraph.core.schema.DefaultSchemaMaker;
+import org.mockito.verification.VerificationMode;
 
 import java.util.Date;
 import java.util.UUID;
 
-public class JanusGraphDefaultSchemaMakerTest extends EasyMockSupport {
+import static org.mockito.Mockito.*;
+
+public class JanusGraphDefaultSchemaMakerTest {
 
   @Test
   public void testMakePropertyKey() {
@@ -51,30 +48,29 @@ public class JanusGraphDefaultSchemaMakerTest extends EasyMockSupport {
       schemaMaker.makePropertyKey(pkm, UUID.randomUUID());
       schemaMaker.makePropertyKey(pkm, new Object());
 
-      verifyAll();
+      verify(pkm, atLeastOnce()).cardinalityIsSet();
   }
 
   private PropertyKeyMaker mockPropertyKeyMaker() {
-      PropertyKeyMaker propertyKeyMaker = createMock(PropertyKeyMaker.class);
-      PropertyKey pk = createMock(PropertyKey.class);
-      expect(propertyKeyMaker.make()).andReturn(pk).anyTimes();
-      expect(propertyKeyMaker.getName()).andReturn("Quux").anyTimes();
-      expect(propertyKeyMaker.cardinality(Cardinality.SINGLE)).andReturn(propertyKeyMaker).anyTimes();
-      expect(propertyKeyMaker.cardinalityIsSet()).andReturn(false).anyTimes();
-      expect(propertyKeyMaker.dataType(String.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Character.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Boolean.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Byte.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Short.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Integer.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Long.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Float.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Double.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Date.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Geoshape.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(UUID.class)).andReturn(propertyKeyMaker);
-      expect(propertyKeyMaker.dataType(Object.class)).andReturn(propertyKeyMaker);
-      replayAll();
+      PropertyKeyMaker propertyKeyMaker = mock(PropertyKeyMaker.class);
+      PropertyKey pk = mock(PropertyKey.class);
+      when(propertyKeyMaker.make()).thenReturn(pk);
+      when(propertyKeyMaker.getName()).thenReturn("Quux");
+      when(propertyKeyMaker.cardinality(Cardinality.SINGLE)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.cardinalityIsSet()).thenReturn(false);
+      when(propertyKeyMaker.dataType(String.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Character.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Boolean.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Byte.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Short.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Integer.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Long.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Float.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Double.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Date.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Geoshape.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(UUID.class)).thenReturn(propertyKeyMaker);
+      when(propertyKeyMaker.dataType(Object.class)).thenReturn(propertyKeyMaker);
       return propertyKeyMaker;
   }
 

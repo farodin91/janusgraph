@@ -17,6 +17,7 @@ package org.janusgraph.graphdb.tinkerpop.gremlin.server.auth;
 import static org.apache.tinkerpop.gremlin.server.auth.SimpleAuthenticator.CONFIG_CREDENTIALS_DB;
 import static org.janusgraph.graphdb.tinkerpop.gremlin.server.handler.HttpHMACAuthenticationHandler.PROPERTY_TOKEN;
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 import java.net.InetAddress;
 import java.util.HashMap;
@@ -181,7 +182,7 @@ public class HMACAuthenticatorTest extends JanusGraphAbstractAuthenticatorTest {
     @Test
     public void testNewSaslNegotiatorOfInetAddr() {
         final HMACAuthenticator authenticator = new HMACAuthenticator();
-        assertThrows(RuntimeException.class, () -> authenticator.newSaslNegotiator(createMock(InetAddress.class)));
+        assertThrows(RuntimeException.class, () -> authenticator.newSaslNegotiator(mock(InetAddress.class)));
     }
 
     @Test

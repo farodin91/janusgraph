@@ -18,10 +18,7 @@ import org.janusgraph.core.JanusGraph;
 
 import java.util.Map;
 
-import static org.easymock.EasyMock.createMockBuilder;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.Mockito.*;
 
 public class MockedHmacAuthenticatorFactory implements MockedJanusGraphAuthenticatorFactory {
 
@@ -31,11 +28,8 @@ public class MockedHmacAuthenticatorFactory implements MockedJanusGraphAuthentic
     }
 
     public HMACAuthenticator createInitializedAuthenticator(final JanusGraph graph) {
-        final HMACAuthenticator hmacAuthenticator = createMockBuilder(HMACAuthenticator.class)
-            .addMockedMethod("openGraph")
-            .createMock();
-        expect(hmacAuthenticator.openGraph(isA(String.class))).andReturn(graph);
-        replay(hmacAuthenticator);
+        final HMACAuthenticator hmacAuthenticator = spy(HMACAuthenticator.class);
+        doReturn(graph).when(hmacAuthenticator).openGraph(anyString());
         return hmacAuthenticator;
     }
 }

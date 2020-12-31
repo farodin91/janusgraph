@@ -13,13 +13,10 @@
 // limitations under the License.
 package org.janusgraph.graphdb.transaction;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.notNull;
-import static org.easymock.EasyMock.replay;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.*;
 
-import org.easymock.EasyMockSupport;
 import org.janusgraph.graphdb.query.index.IndexSelectionStrategy;
 import org.janusgraph.graphdb.query.index.ThresholdBasedIndexSelectionStrategy;
 import org.junit.jupiter.api.Test;
@@ -36,7 +33,7 @@ import org.janusgraph.graphdb.database.EdgeSerializer;
 import org.janusgraph.graphdb.database.IndexSerializer;
 import org.janusgraph.graphdb.idmanagement.IDManager;
 
-public class StandardJanusGraphTxTest extends EasyMockSupport {
+public class StandardJanusGraphTxTest {
 
     @Test
     public void testGetOrCreatePropertyKey() {
@@ -50,63 +47,59 @@ public class StandardJanusGraphTxTest extends EasyMockSupport {
         }
         tx.getOrCreatePropertyKey("Qux", "Quux");
         assertNotNull(e, "getOrCreatePropertyKey should throw an Exception when the relationType is not a PropertyKey");
-        verifyAll();
+        //verifyAll();
     }
 
 
     private StandardJanusGraphTx createTxWithMockedInternals() {
-        StandardJanusGraph mockGraph = createMock(StandardJanusGraph.class);
-        TransactionConfiguration txConfig = createMock(TransactionConfiguration.class);
-        GraphDatabaseConfiguration gdbConfig = createMock(GraphDatabaseConfiguration.class);
-        TimestampProvider tsProvider = createMock(TimestampProvider.class);
-        Serializer mockSerializer = createMock(Serializer.class);
-        EdgeSerializer mockEdgeSerializer = createMock(EdgeSerializer.class);
-        IndexSerializer mockIndexSerializer = createMock(IndexSerializer.class);
-        RelationType relationType = createMock(RelationType.class);
-        IDManager idManager = createMock(IDManager.class);
-        PropertyKey propertyKey = createMock(PropertyKey.class);
-        DefaultSchemaMaker defaultSchemaMaker = createMock(DefaultSchemaMaker.class);
-        IndexSelectionStrategy indexSelectionStrategy = createMock(ThresholdBasedIndexSelectionStrategy.class);
+        StandardJanusGraph mockGraph = mock(StandardJanusGraph.class);
+        TransactionConfiguration txConfig = mock(TransactionConfiguration.class);
+        GraphDatabaseConfiguration gdbConfig = mock(GraphDatabaseConfiguration.class);
+        TimestampProvider tsProvider = mock(TimestampProvider.class);
+        Serializer mockSerializer = mock(Serializer.class);
+        EdgeSerializer mockEdgeSerializer = mock(EdgeSerializer.class);
+        IndexSerializer mockIndexSerializer = mock(IndexSerializer.class);
+        RelationType relationType = mock(RelationType.class);
+        IDManager idManager = mock(IDManager.class);
+        PropertyKey propertyKey = mock(PropertyKey.class);
+        DefaultSchemaMaker defaultSchemaMaker = mock(DefaultSchemaMaker.class);
+        IndexSelectionStrategy indexSelectionStrategy = mock(ThresholdBasedIndexSelectionStrategy.class);
 
-        expect(mockGraph.getConfiguration()).andReturn(gdbConfig);
-        expect(mockGraph.isOpen()).andReturn(true).anyTimes();
-        expect(mockGraph.getDataSerializer()).andReturn(mockSerializer);
-        expect(mockGraph.getEdgeSerializer()).andReturn(mockEdgeSerializer);
-        expect(mockGraph.getIndexSerializer()).andReturn(mockIndexSerializer);
-        expect(mockGraph.getIDManager()).andReturn(idManager);
-        expect(mockGraph.getIndexSelector()).andReturn(indexSelectionStrategy);
+        when(mockGraph.getConfiguration()).thenReturn(gdbConfig);
+        when(mockGraph.isOpen()).thenReturn(true);
+        when(mockGraph.getDataSerializer()).thenReturn(mockSerializer);
+        when(mockGraph.getEdgeSerializer()).thenReturn(mockEdgeSerializer);
+        when(mockGraph.getIndexSerializer()).thenReturn(mockIndexSerializer);
+        when(mockGraph.getIDManager()).thenReturn(idManager);
+        when(mockGraph.getIndexSelector()).thenReturn(indexSelectionStrategy);
 
-        expect(gdbConfig.getTimestampProvider()).andReturn(tsProvider);
+        when(gdbConfig.getTimestampProvider()).thenReturn(tsProvider);
 
-        expect(txConfig.isSingleThreaded()).andReturn(true);
-        expect(txConfig.hasPreloadedData()).andReturn(false);
-        expect(txConfig.hasVerifyExternalVertexExistence()).andReturn(false);
-        expect(txConfig.hasVerifyInternalVertexExistence()).andReturn(false);
-        expect(txConfig.getVertexCacheSize()).andReturn(6);
-        expect(txConfig.isReadOnly()).andReturn(true);
-        expect(txConfig.getDirtyVertexSize()).andReturn(2);
-        expect(txConfig.getIndexCacheWeight()).andReturn(2L);
-        expect(txConfig.getGroupName()).andReturn(null);
-        expect(txConfig.getAutoSchemaMaker()).andReturn(defaultSchemaMaker);
+        when(txConfig.isSingleThreaded()).thenReturn(true);
+        when(txConfig.hasPreloadedData()).thenReturn(false);
+        when(txConfig.hasVerifyExternalVertexExistence()).thenReturn(false);
+        when(txConfig.hasVerifyInternalVertexExistence()).thenReturn(false);
+        when(txConfig.getVertexCacheSize()).thenReturn(6);
+        when(txConfig.isReadOnly()).thenReturn(true);
+        when(txConfig.getDirtyVertexSize()).thenReturn(2);
+        when(txConfig.getIndexCacheWeight()).thenReturn(2L);
+        when(txConfig.getGroupName()).thenReturn(null);
+        when(txConfig.getAutoSchemaMaker()).thenReturn(defaultSchemaMaker);
 
-        expect(defaultSchemaMaker.makePropertyKey(isA(PropertyKeyMaker.class), notNull())).andReturn(propertyKey);
+        when(defaultSchemaMaker.makePropertyKey(isA(PropertyKeyMaker.class), notNull())).thenReturn(propertyKey);
 
-        expect(relationType.isPropertyKey()).andReturn(false);
+        when(relationType.isPropertyKey()).thenReturn(false);
 
-        expect(propertyKey.isPropertyKey()).andReturn(true);
+        when(propertyKey.isPropertyKey()).thenReturn(true);
 
-        replayAll();
+        //replayAll();
 
-        StandardJanusGraphTx partialMock = createMockBuilder(StandardJanusGraphTx.class)
-           .withConstructor(mockGraph, txConfig)
-           .addMockedMethod("getRelationType")
-           .createMock();
+        StandardJanusGraphTx partialMock = spy( new StandardJanusGraphTx(mockGraph, txConfig));
 
-        expect(partialMock.getRelationType("Foo")).andReturn(null);
-        expect(partialMock.getRelationType("Qux")).andReturn(propertyKey);
-        expect(partialMock.getRelationType("Baz")).andReturn(relationType);
+        doReturn(null).when(partialMock).getRelationType("Foo");
+        doReturn(propertyKey).when(partialMock).getRelationType("Qux");
+        doReturn(relationType).when(partialMock).getRelationType("Baz");
 
-        replay(partialMock);
         return partialMock;
 
     }

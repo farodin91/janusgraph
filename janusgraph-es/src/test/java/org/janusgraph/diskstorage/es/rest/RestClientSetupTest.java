@@ -87,16 +87,13 @@ public class RestClientSetupTest {
     ArgumentCaptor<Integer> scrollKACaptor;
 
     @Spy
-    private RestClientSetup restClientSetup = new RestClientSetup();
+    private final RestClientSetup restClientSetup = new RestClientSetup();
 
     @Mock
     private RestClient restClientMock;
 
     @Mock
     private RestElasticSearchClient restElasticSearchClientMock;
-
-    @Mock
-    private SSLContext sslContextMock;
 
     @Mock
     private RestClientBuilder restClientBuilderMock;

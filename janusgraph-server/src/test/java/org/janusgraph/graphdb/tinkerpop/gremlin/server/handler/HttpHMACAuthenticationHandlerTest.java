@@ -16,23 +16,14 @@ package org.janusgraph.graphdb.tinkerpop.gremlin.server.handler;
 
 import static io.netty.handler.codec.http.HttpResponseStatus.OK;
 import static io.netty.handler.codec.http.HttpResponseStatus.UNAUTHORIZED;
-import static org.easymock.EasyMock.and;
-import static org.easymock.EasyMock.capture;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.*;
 
 import java.util.Base64;
 import java.util.Map;
 
 import org.apache.tinkerpop.gremlin.server.auth.AuthenticatedUser;
 import org.apache.tinkerpop.gremlin.server.auth.Authenticator;
-import org.easymock.Capture;
-import org.easymock.CaptureType;
-import org.easymock.EasyMock;
-import org.easymock.EasyMockSupport;
-import org.easymock.IArgumentMatcher;
 import org.junit.jupiter.api.Test;
 
 import io.netty.channel.ChannelFuture;
@@ -43,139 +34,155 @@ import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpResponseStatus;
+import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 
-public class HttpHMACAuthenticationHandlerTest extends EasyMockSupport {
+public class HttpHMACAuthenticationHandlerTest {
 
     @Test
     public void testChannelReadBasicAuthNoAuthHeader() {
-        final ChannelHandlerContext ctx = createMock(ChannelHandlerContext.class);
-        final FullHttpRequest msg = createMock(FullHttpRequest.class);
-        final HttpHeaders headers = createMock(HttpHeaders.class);
-        final Authenticator authenticator = createMock(Authenticator.class);
-        final ChannelFuture cf = createMock(ChannelFuture.class);
+        final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
+        final FullHttpRequest msg = mock(FullHttpRequest.class);
+        final HttpHeaders headers = mock(HttpHeaders.class);
+        final Authenticator authenticator = mock(Authenticator.class);
+        final ChannelFuture cf = mock(ChannelFuture.class);
 
-        expect(msg.getMethod()).andReturn(HttpMethod.POST);
-        expect(msg.headers()).andReturn(headers).anyTimes();
-        expect(headers.get(eq("Authorization"))).andReturn(null);
-        expect(ctx.writeAndFlush(eqHttpStatus(UNAUTHORIZED))).andReturn(cf);
-        expect(cf.addListener(ChannelFutureListener.CLOSE)).andReturn(null);
-        expect(msg.release()).andReturn(false);
+        when(msg.getMethod()).thenReturn(HttpMethod.POST);
+        when(msg.headers()).thenReturn(headers);
+        when(headers.get("Authorization")).thenReturn(null);
+        when(ctx.writeAndFlush(eqHttpStatus(UNAUTHORIZED))).thenReturn(cf);
+        when(cf.addListener(ChannelFutureListener.CLOSE)).thenReturn(null);
+        when(msg.release()).thenReturn(false);
+
         HttpHMACAuthenticationHandler handler = new HttpHMACAuthenticationHandler(authenticator);
-        replayAll();
+
         handler.channelRead(ctx, msg);
-        verifyAll();
+
+        verify(msg, times(1)).getMethod();
+        verify(msg, times(1)).headers();
+        verify(msg, times(1)).release();
     }
 
     @Test
     public void testChannelReadBasicAuthIncorrectScheme() {
-        final ChannelHandlerContext ctx = createMock(ChannelHandlerContext.class);
-        final FullHttpRequest msg = createMock(FullHttpRequest.class);
-        final HttpHeaders headers = createMock(HttpHeaders.class);
-        final Authenticator authenticator = createMock(Authenticator.class);
-        final ChannelFuture cf = createMock(ChannelFuture.class);
+        final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
+        final FullHttpRequest msg = mock(FullHttpRequest.class);
+        final HttpHeaders headers = mock(HttpHeaders.class);
+        final Authenticator authenticator = mock(Authenticator.class);
+        final ChannelFuture cf = mock(ChannelFuture.class);
 
-        expect(msg.getMethod()).andReturn(HttpMethod.POST);
-        expect(msg.headers()).andReturn(headers).anyTimes();
-        expect(headers.get("Authorization")).andReturn("bogus");
-        expect(ctx.writeAndFlush(eqHttpStatus(UNAUTHORIZED))).andReturn(cf);
-        expect(cf.addListener(ChannelFutureListener.CLOSE)).andReturn(null);
-        expect(msg.release()).andReturn(false);
+        when(msg.getMethod()).thenReturn(HttpMethod.POST);
+        when(msg.headers()).thenReturn(headers);
+        when(headers.get("Authorization")).thenReturn("bogus");
+        when(ctx.writeAndFlush(eqHttpStatus(UNAUTHORIZED))).thenReturn(cf);
+        when(cf.addListener(ChannelFutureListener.CLOSE)).thenReturn(null);
+        when(msg.release()).thenReturn(false);
 
         final HttpHMACAuthenticationHandler handler = new HttpHMACAuthenticationHandler(authenticator);
-        replayAll();
+
         handler.channelRead(ctx, msg);
-        verifyAll();
+
+        verify(msg, times(1)).getMethod();
+        verify(msg, times(1)).headers();
+        verify(msg, times(1)).release();
     }
 
     @Test
     public void testChannelReadBasicAuth() throws Exception {
-        final ChannelHandlerContext ctx = createMock(ChannelHandlerContext.class);
-        final FullHttpRequest msg = createMock(FullHttpRequest.class);
-        final HttpHeaders headers = createMock(HttpHeaders.class);
-        final Authenticator authenticator = createMock(Authenticator.class);
+        final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
+        final FullHttpRequest msg = mock(FullHttpRequest.class);
+        final HttpHeaders headers = mock(HttpHeaders.class);
+        final Authenticator authenticator = mock(Authenticator.class);
         final String encodedUserNameAndPass = Base64.getEncoder().encodeToString("user:pass".getBytes());
-        expect(msg.getMethod()).andReturn(HttpMethod.POST);
-        expect(msg.headers()).andReturn(headers).anyTimes();
-        expect(msg.getUri()).andReturn("/");
-        expect(headers.get(eq("Authorization"))).andReturn("Basic " + encodedUserNameAndPass);
-        expect(ctx.fireChannelRead(isA(FullHttpRequest.class))).andReturn(ctx);
-        expect(authenticator.authenticate(isA(Map.class))).andReturn(new AuthenticatedUser("foo"));
+        when(msg.getMethod()).thenReturn(HttpMethod.POST);
+        when(msg.headers()).thenReturn(headers);
+        when(msg.getUri()).thenReturn("/");
+        when(headers.get(eq("Authorization"))).thenReturn("Basic " + encodedUserNameAndPass);
+        when(ctx.fireChannelRead(isA(FullHttpRequest.class))).thenReturn(ctx);
+        when(authenticator.authenticate(anyMap())).thenReturn(new AuthenticatedUser("foo"));
+
         final HttpHMACAuthenticationHandler handler = new HttpHMACAuthenticationHandler(authenticator);
-        replayAll();
+
         handler.channelRead(ctx, msg);
-        verifyAll();
+
+        verify(msg, times(1)).getMethod();
+        verify(msg, times(1)).headers();
+        verify(headers, times(1)).get(any());
+        verify(ctx, times(1)).fireChannelRead(any());
+        verify(authenticator, times(1)).authenticate(any());
     }
 
     @Test
     public void testChannelReadGetAuthToken() throws Exception {
-        final ChannelHandlerContext ctx = createMock(ChannelHandlerContext.class);
-        final FullHttpRequest msg = createMock(FullHttpRequest.class);
-        final HttpHeaders headers = createMock(HttpHeaders.class);
-        final Authenticator authenticator = createMock(Authenticator.class);
-        final ChannelFuture cf = createMock(ChannelFuture.class);
+        final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
+        final FullHttpRequest msg = mock(FullHttpRequest.class);
+        final HttpHeaders headers = mock(HttpHeaders.class);
+        final Authenticator authenticator = mock(Authenticator.class);
+        final ChannelFuture cf = mock(ChannelFuture.class);
         final String encodedUserNameAndPass = Base64.getEncoder().encodeToString("user:pass".getBytes());
-        final Capture<Map<String, String>> credMap = EasyMock.newCapture(CaptureType.ALL);
-        expect(msg.getMethod()).andReturn(HttpMethod.GET);
-        expect(msg.headers()).andReturn(headers).anyTimes();
-        expect(msg.getUri()).andReturn("/session");
-        expect(headers.get(eq("Authorization"))).andReturn("Basic " + encodedUserNameAndPass);
-        expect(authenticator.authenticate(and(isA(Map.class), capture(credMap)))).andReturn(new AuthenticatedUser("foo"));
-        expect(ctx.writeAndFlush(eqHttpStatus(OK))).andReturn(cf);
-        expect(cf.addListener(ChannelFutureListener.CLOSE)).andReturn(null);
-        expect(msg.release()).andReturn(false);
+        when(msg.getMethod()).thenReturn(HttpMethod.GET);
+        when(msg.headers()).thenReturn(headers);
+        when(msg.getUri()).thenReturn("/session");
+        when(headers.get("Authorization")).thenReturn("Basic " + encodedUserNameAndPass);
+        when(authenticator.authenticate(anyMap())).thenReturn(new AuthenticatedUser("foo"));
+        when(ctx.writeAndFlush(eqHttpStatus(OK))).thenReturn(cf);
+        when(cf.addListener(ChannelFutureListener.CLOSE)).thenReturn(null);
+        when(msg.release()).thenReturn(false);
         final HttpHMACAuthenticationHandler handler = new HttpHMACAuthenticationHandler(authenticator);
-        replayAll();
+
         handler.channelRead(ctx, msg);
-        verifyAll();
-        assertNotNull(credMap.getValue().get(HttpHMACAuthenticationHandler.PROPERTY_GENERATE_TOKEN));
+
+        verify(msg, times(1)).getMethod();
+        verify(msg, times(1)).headers();
+        verify(msg, times(1)).release();
+        ArgumentCaptor<Map<String, String>> credMapCaptor = ArgumentCaptor.forClass(Map.class);
+
+        verify(authenticator).authenticate(credMapCaptor.capture());
+
+        assertNotNull(credMapCaptor.getValue().get(HttpHMACAuthenticationHandler.PROPERTY_GENERATE_TOKEN));
     }
 
     @Test
     public void testChannelReadTokenAuth() throws Exception {
-        final ChannelHandlerContext ctx = createMock(ChannelHandlerContext.class);
-        final FullHttpRequest msg = createMock(FullHttpRequest.class);
-        final HttpHeaders headers = createMock(HttpHeaders.class);
-        final Authenticator authenticator = createMock(Authenticator.class);
+        final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
+        final FullHttpRequest msg = mock(FullHttpRequest.class);
+        final HttpHeaders headers = mock(HttpHeaders.class);
+        final Authenticator authenticator = mock(Authenticator.class);
         final String encodedToken = Base64.getEncoder().encodeToString("askdjhf823asdlkfsasd".getBytes());
-        expect(msg.getMethod()).andReturn(HttpMethod.GET);
-        expect(msg.headers()).andReturn(headers).anyTimes();
-        expect(msg.getUri()).andReturn("/");
-        expect(headers.get(eq("Authorization"))).andReturn("Token " + encodedToken);
-        expect(ctx.fireChannelRead(isA(FullHttpRequest.class))).andReturn(ctx);
-        expect(authenticator.authenticate(isA(Map.class))).andReturn(new AuthenticatedUser("foo"));
+        when(msg.getMethod()).thenReturn(HttpMethod.GET);
+        when(msg.headers()).thenReturn(headers);
+        when(msg.getUri()).thenReturn("/");
+        when(headers.get(eq("Authorization"))).thenReturn("Token " + encodedToken);
+        when(ctx.fireChannelRead(isA(FullHttpRequest.class))).thenReturn(ctx);
+        when(authenticator.authenticate(anyMap())).thenReturn(new AuthenticatedUser("foo"));
         final HttpHMACAuthenticationHandler handler = new HttpHMACAuthenticationHandler(authenticator);
-        replayAll();
+
         handler.channelRead(ctx, msg);
-        verifyAll();
+
+        verify(msg, times(1)).getMethod();
+        verify(msg, times(1)).headers();
+        verify(msg, times(1)).getUri();;
+        verify(headers, times(1)).get(any());
+        verify(ctx, times(1)).fireChannelRead(any());
+        verify(authenticator, times(1)).authenticate(any());
     }
 
 
     private static DefaultFullHttpResponse eqHttpStatus(HttpResponseStatus status) {
-        EasyMock.reportMatcher(new WithCorrectHttpResponse(status));
-        return null;
+        return argThat(new HttpResponseStatusMatcher(status));
     }
 
-    static class WithCorrectHttpResponse implements IArgumentMatcher {
-        private HttpResponseStatus expected;
+    public static class HttpResponseStatusMatcher implements ArgumentMatcher<DefaultFullHttpResponse> {
 
-        public WithCorrectHttpResponse(HttpResponseStatus expected) {
-            this.expected = expected;
+        private final HttpResponseStatus left;
+
+        public HttpResponseStatusMatcher(HttpResponseStatus left) {
+            this.left = left;
         }
 
-        public boolean matches(Object actual) {
-            if (!(actual instanceof DefaultFullHttpResponse)) {
-                return false;
-            }
-            return expected.equals(((DefaultFullHttpResponse) actual).getStatus());
-        }
-
-        public void appendTo(StringBuffer buffer) {
-            buffer.append("eqHttpStatus(");
-            buffer.append(expected.getClass().getName());
-            buffer.append(" with status \"");
-            buffer.append(expected.toString());
-            buffer.append("\")");
+        @Override
+        public boolean matches(DefaultFullHttpResponse right) {
+            return left.equals((right).getStatus());
         }
     }
-
 }

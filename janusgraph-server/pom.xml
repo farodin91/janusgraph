@@ -24,11 +24,6 @@
         </dependency>
         <!-- TESTING -->
         <dependency>
-            <groupId>org.easymock</groupId>
-            <artifactId>easymock</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
             <groupId>org.janusgraph</groupId>
             <artifactId>janusgraph-inmemory</artifactId>
             <version>${project.version}</version>

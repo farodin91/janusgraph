@@ -72,7 +72,7 @@
         <tinkerpop.version>3.4.9</tinkerpop.version>
         <junit-platform.version>1.7.0</junit-platform.version>
         <junit.version>5.7.0</junit.version>
-        <mockito.version>2.23.0</mockito.version>
+        <mockito.version>3.6.28</mockito.version>
         <jamm.version>0.3.0</jamm.version>
         <metrics.version>4.1.12.1</metrics.version>
         <slf4j.version>1.7.30</slf4j.version>
@@ -116,7 +116,6 @@
         <cassandra.version>3.11.9</cassandra.version>
         <cassandra-driver.version>4.9.0</cassandra-driver.version>
         <testcontainers.version>1.15.1</testcontainers.version>
-        <easymock.version>3.4</easymock.version>
     </properties>
     <modules>
         <module>janusgraph-driver</module>
@@ -769,12 +768,10 @@
                 <artifactId>netty-transport-native-epoll</artifactId>
                 <version>${netty4.version}</version>
             </dependency>
-
-            <!-- The Objenesis version is closely coupled to Kryo and to TP3 versions -->
             <dependency>
                 <groupId>org.objenesis</groupId>
                 <artifactId>objenesis</artifactId>
-                <version>2.6</version>
+                <version>3.1</version>
             </dependency>
 
             <dependency>
@@ -1062,11 +1059,6 @@
                 <groupId>org.testcontainers</groupId>
                 <artifactId>junit-jupiter</artifactId>
                 <version>${testcontainers.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.easymock</groupId>
-                <artifactId>easymock</artifactId>
-                <version>${easymock.version}</version>
             </dependency>
             <dependency>
                 <groupId>io.github.artsok</groupId>

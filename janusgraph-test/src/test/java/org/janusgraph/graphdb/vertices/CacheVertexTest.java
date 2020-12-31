@@ -14,42 +14,32 @@
 
 package org.janusgraph.graphdb.vertices;
 
-import org.easymock.EasyMockSupport;
 import org.janusgraph.diskstorage.keycolumnvalue.SliceQuery;
 import org.janusgraph.graphdb.transaction.StandardJanusGraphTx;
 import org.janusgraph.util.datastructures.Retriever;
 import org.junit.jupiter.api.Test;
 
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.verify;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.*;
 
-public class CacheVertexTest extends EasyMockSupport {
+public class CacheVertexTest {
 
     @Test
     public void testLoadRelationsWithNullSuperSetValue() {
-        final SliceQuery mockSliceQuery = createMock(SliceQuery.class);
-        final Retriever mockRetriever = createMock(Retriever.class);
+        final SliceQuery mockSliceQuery = mock(SliceQuery.class);
+        final Retriever mockRetriever = mock(Retriever.class);
 
-        expect(mockSliceQuery.subsumes(isA(SliceQuery.class))).andReturn(true);
-        expect(mockRetriever.get(isA(SliceQuery.class))).andReturn(null);
+        when(mockSliceQuery.subsumes(any(SliceQuery.class))).thenReturn(true);
+        when(mockRetriever.get(any(SliceQuery.class))).thenReturn(null);
 
-        replayAll();
+        final CacheVertex cacheVertex = spy(new CacheVertex(mock(StandardJanusGraphTx.class), 0l, (byte) 0));
 
-        final CacheVertex cacheVertex = createMockBuilder(CacheVertex.class)
-            .withConstructor(createMock(StandardJanusGraphTx.class), 0l, (byte) 0)
-            .addMockedMethod("isNew")
-            .createMock();
-
-        expect(cacheVertex.isNew()).andReturn(false);
-
-        replay(cacheVertex);
+        doReturn(false).when(cacheVertex).isNew();
 
         cacheVertex.addToQueryCache(mockSliceQuery, null);
-        cacheVertex.loadRelations(createMock(SliceQuery.class), mockRetriever);
+        cacheVertex.loadRelations(mock(SliceQuery.class), mockRetriever);
 
-        verify(mockRetriever);
+        verify(mockRetriever, times(1)).get(any());
     }
 
 }

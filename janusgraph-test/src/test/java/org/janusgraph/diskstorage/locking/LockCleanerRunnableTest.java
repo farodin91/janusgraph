@@ -14,28 +14,9 @@
 
 package org.janusgraph.diskstorage.locking;
 
-import static org.janusgraph.diskstorage.locking.consistentkey.ConsistentKeyLocker.LOCK_COL_END;
-import static org.janusgraph.diskstorage.locking.consistentkey.ConsistentKeyLocker.LOCK_COL_START;
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import java.time.Instant;
-import java.util.List;
-
-import org.janusgraph.diskstorage.BackendException;
-import org.janusgraph.diskstorage.util.*;
-import org.janusgraph.diskstorage.util.time.TimestampProviders;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import org.janusgraph.diskstorage.BackendException;
 import org.janusgraph.diskstorage.Entry;
 import org.janusgraph.diskstorage.EntryList;
 import org.janusgraph.diskstorage.StaticBuffer;
@@ -44,61 +25,64 @@ import org.janusgraph.diskstorage.keycolumnvalue.KeySliceQuery;
 import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
 import org.janusgraph.diskstorage.locking.consistentkey.ConsistentKeyLockerSerializer;
 import org.janusgraph.diskstorage.locking.consistentkey.StandardLockCleanerRunnable;
+import org.janusgraph.diskstorage.util.*;
+import org.janusgraph.diskstorage.util.time.TimestampProviders;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.Instant;
+import java.util.List;
+
+import static org.janusgraph.diskstorage.locking.consistentkey.ConsistentKeyLocker.LOCK_COL_END;
+import static org.janusgraph.diskstorage.locking.consistentkey.ConsistentKeyLocker.LOCK_COL_START;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+
+@ExtendWith(MockitoExtension.class)
 public class LockCleanerRunnableTest {
-
-    private IMocksControl ctrl;
-    private StandardLockCleanerRunnable del;
-    private KeyColumnValueStore store;
-    private StoreTransaction tx;
-
     private final ConsistentKeyLockerSerializer codec = new ConsistentKeyLockerSerializer();
     private final KeyColumn kc = new KeyColumn(
-            new StaticArrayBuffer(new byte[]{(byte) 1}),
-            new StaticArrayBuffer(new byte[]{(byte) 2}));
+        new StaticArrayBuffer(new byte[]{(byte) 1}),
+        new StaticArrayBuffer(new byte[]{(byte) 2}));
     private final StaticBuffer key = codec.toLockKey(kc.getKey(), kc.getColumn());
     private final KeySliceQuery ksq = new KeySliceQuery(key, LOCK_COL_START, LOCK_COL_END);
     private final StaticBuffer defaultLockRid = new StaticArrayBuffer(new byte[]{(byte) 32});
-
-    @BeforeEach
-    public void setupMocks() {
-        IMocksControl relaxedCtrl = EasyMock.createControl();
-        tx = relaxedCtrl.createMock(StoreTransaction.class);
-
-        ctrl = EasyMock.createStrictControl();
-        store = ctrl.createMock(KeyColumnValueStore.class);
-    }
-
-    @AfterEach
-    public void verifyMocks() {
-        ctrl.verify();
-    }
 
     /**
      * Simplest case test of the lock cleaner.
      */
     @Test
     public void testDeleteSingleLock() throws BackendException {
+        StoreTransaction tx = mock(StoreTransaction.class);
+        KeyColumnValueStore store = mock(KeyColumnValueStore.class);
+
         Instant now = Instant.ofEpochMilli(1L);
 
         Entry expiredLockCol = StaticArrayEntry.of(codec.toLockCol(now,
-                defaultLockRid, TimestampProviders.MILLI), BufferUtil.getIntBuffer(0));
+            defaultLockRid, TimestampProviders.MILLI), BufferUtil.getIntBuffer(0));
         EntryList expiredSingleton = StaticArrayEntryList.of(expiredLockCol);
 
         now = now.plusMillis(1);
-        del = new StandardLockCleanerRunnable(store, kc, tx, codec, now, TimestampProviders.MILLI);
+        StandardLockCleanerRunnable del = new StandardLockCleanerRunnable(store, kc, tx, codec, now, TimestampProviders.MILLI);
 
-        expect(store.getSlice(eq(ksq), eq(tx)))
-                .andReturn(expiredSingleton);
+        doReturn(expiredSingleton).when(store).getSlice(eq(ksq), eq(tx));
 
-        store.mutate(
-                eq(key),
-                eq(ImmutableList.of()),
-                eq(ImmutableList.of(expiredLockCol.getColumn())),
-                anyObject(StoreTransaction.class));
-
-        ctrl.replay();
         del.run();
+
+        InOrder inOrder = Mockito.inOrder(store, tx);
+        then(store).should(inOrder).getSlice(eq(ksq), eq(tx));
+        then(store).should(inOrder).mutate(eq(key),
+            eq(ImmutableList.of()),
+            eq(ImmutableList.of(expiredLockCol.getColumn())),
+            any(StoreTransaction.class));
     }
 
     /**
@@ -108,6 +92,8 @@ public class LockCleanerRunnableTest {
      */
     @Test
     public void testDeletionWithExpiredAndValidLocks() throws BackendException {
+        StoreTransaction tx = mock(StoreTransaction.class);
+        KeyColumnValueStore store = mock(KeyColumnValueStore.class);
 
         final int lockCount = 10;
         final int expiredCount = 3;
@@ -117,13 +103,13 @@ public class LockCleanerRunnableTest {
         final Instant timeCutoff = timeStart.plusMillis(expiredCount * timeIncrement);
 
         ImmutableList.Builder<Entry> locksBuilder = ImmutableList.builder();
-        ImmutableList.Builder<Entry> deletionBuilder  = ImmutableList.builder();
+        ImmutableList.Builder<Entry> deletionBuilder = ImmutableList.builder();
 
         for (int i = 0; i < lockCount; i++) {
             final Instant ts = timeStart.plusMillis(timeIncrement * i);
             Entry lock = StaticArrayEntry.of(
-                    codec.toLockCol(ts, defaultLockRid, TimestampProviders.MILLI),
-                    BufferUtil.getIntBuffer(0));
+                codec.toLockCol(ts, defaultLockRid, TimestampProviders.MILLI),
+                BufferUtil.getIntBuffer(0));
 
             if (ts.isBefore(timeCutoff)) {
                 deletionBuilder.add(lock);
@@ -133,21 +119,22 @@ public class LockCleanerRunnableTest {
         }
 
         EntryList locks = StaticArrayEntryList.of(locksBuilder.build());
-        EntryList deletions  = StaticArrayEntryList.of(deletionBuilder.build());
+        EntryList deletions = StaticArrayEntryList.of(deletionBuilder.build());
         assertEquals(expiredCount, deletions.size());
 
-        del = new StandardLockCleanerRunnable(store, kc, tx, codec, timeCutoff, TimestampProviders.MILLI);
+        StandardLockCleanerRunnable del = new StandardLockCleanerRunnable(store, kc, tx, codec, timeCutoff, TimestampProviders.MILLI);
 
-        expect(store.getSlice(eq(ksq), eq(tx))).andReturn(locks);
+        doReturn(locks).when(store).getSlice(eq(ksq), eq(tx));
 
-        store.mutate(
-                eq(key),
-                eq(ImmutableList.of()),
-                eq(columnsOf(deletions)),
-                anyObject(StoreTransaction.class));
-
-        ctrl.replay();
         del.run();
+
+        InOrder inOrder = Mockito.inOrder(store, tx);
+        then(store).should(inOrder).getSlice(eq(ksq), eq(tx));
+        then(store).should(inOrder).mutate(
+            eq(key),
+            eq(ImmutableList.of()),
+            eq(columnsOf(deletions)),
+            any(StoreTransaction.class));
     }
 
     /**
@@ -157,20 +144,22 @@ public class LockCleanerRunnableTest {
      */
     @Test
     public void testPreservesLocksAtOrAfterCutoff() throws BackendException {
+        StoreTransaction tx = mock(StoreTransaction.class);
+        KeyColumnValueStore store = mock(KeyColumnValueStore.class);
+
         final Instant cutoff = Instant.ofEpochMilli(10L);
 
         Entry currentLock = StaticArrayEntry.of(codec.toLockCol(cutoff,
-                defaultLockRid, TimestampProviders.MILLI), BufferUtil.getIntBuffer(0));
+            defaultLockRid, TimestampProviders.MILLI), BufferUtil.getIntBuffer(0));
         Entry futureLock = StaticArrayEntry.of(codec.toLockCol(cutoff.plusMillis(1),
-                defaultLockRid, TimestampProviders.MILLI), BufferUtil.getIntBuffer(0));
+            defaultLockRid, TimestampProviders.MILLI), BufferUtil.getIntBuffer(0));
         EntryList locks = StaticArrayEntryList.of(currentLock, futureLock);
 
         // Don't increment cutoff: lockCol is exactly at the cutoff timestamp
-        del = new StandardLockCleanerRunnable(store, kc, tx, codec, cutoff, TimestampProviders.MILLI);
+        StandardLockCleanerRunnable del = new StandardLockCleanerRunnable(store, kc, tx, codec, cutoff, TimestampProviders.MILLI);
 
-        expect(store.getSlice(eq(ksq), eq(tx))).andReturn(locks);
+        doReturn(locks).when(store).getSlice(eq(ksq), eq(tx));
 
-        ctrl.replay();
         del.run();
     }
 

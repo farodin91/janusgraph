@@ -16,8 +16,8 @@ package org.janusgraph.graphdb.tinkerpop.gremlin.server.auth;
 
 import org.apache.tinkerpop.gremlin.groovy.jsr223.dsl.credential.CredentialGraphTokens;
 import org.apache.tinkerpop.gremlin.groovy.jsr223.dsl.credential.CredentialTraversalSource;
+import org.apache.tinkerpop.gremlin.server.auth.AuthenticationException;
 import org.apache.tinkerpop.gremlin.structure.Vertex;
-import org.easymock.EasyMockSupport;
 import org.janusgraph.StorageSetup;
 import org.janusgraph.core.Cardinality;
 import org.janusgraph.core.JanusGraph;
@@ -33,7 +33,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-public abstract class JanusGraphAbstractAuthenticatorTest extends EasyMockSupport {
+public abstract class JanusGraphAbstractAuthenticatorTest {
 
     public abstract JanusGraphAbstractAuthenticator createAuthenticator();
 
@@ -72,7 +72,7 @@ public abstract class JanusGraphAbstractAuthenticatorTest extends EasyMockSuppor
     }
 
     @Test
-    public void testSetupEmptyCredentialsGraphCreateDefaultUser() {
+    public void testSetupEmptyCredentialsGraphCreateDefaultUser() throws AuthenticationException {
         final String defaultUser = "user";
         final String defaultPassword = "pass";
         final Map<String, Object> configMap =
@@ -88,7 +88,7 @@ public abstract class JanusGraphAbstractAuthenticatorTest extends EasyMockSuppor
     }
 
     @Test
-    public void testSetupEmptyCredentialsGraphCreateUsernamePropertyKey() {
+    public void testSetupEmptyCredentialsGraphCreateUsernamePropertyKey() throws AuthenticationException {
         final Map<String, Object> configMap = createConfig();
         final JanusGraph graph = StorageSetup.getInMemoryGraph();
         final JanusGraphAbstractAuthenticator authenticator = createInitializedAuthenticator(configMap, graph);
@@ -102,7 +102,7 @@ public abstract class JanusGraphAbstractAuthenticatorTest extends EasyMockSuppor
     }
 
     @Test
-    public void testSetupEmptyCredentialsGraphCreateUsernameIndex() {
+    public void testSetupEmptyCredentialsGraphCreateUsernameIndex() throws AuthenticationException {
         final Map<String, Object> configMap = createConfig();
         final JanusGraph graph = StorageSetup.getInMemoryGraph();
         final JanusGraphAbstractAuthenticator authenticator = createInitializedAuthenticator(configMap, graph);
@@ -117,7 +117,7 @@ public abstract class JanusGraphAbstractAuthenticatorTest extends EasyMockSuppor
     }
 
     @Test
-    public void testSetupCredentialsGraphWithDefaultUserDontCreateUserAgain() {
+    public void testSetupCredentialsGraphWithDefaultUserDontCreateUserAgain() throws AuthenticationException {
         final String defaultUser = "user";
         final String defaultPassword = "pass";
         final Map<String, Object> configMap =
@@ -136,7 +136,7 @@ public abstract class JanusGraphAbstractAuthenticatorTest extends EasyMockSuppor
     }
 
     protected JanusGraphAbstractAuthenticator createInitializedAuthenticator(final Map<String, Object> config,
-                                                                           final JanusGraph graph) {
+                                                                           final JanusGraph graph) throws AuthenticationException {
         return mockedAuthenticatorFactory().createInitializedAuthenticator(config, graph);
     }
 

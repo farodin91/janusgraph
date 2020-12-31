@@ -15,11 +15,10 @@
 package org.janusgraph.graphdb.tinkerpop.gremlin.server.handler;
 
 import static org.apache.tinkerpop.gremlin.server.AbstractChannelizer.PIPELINE_AUTHENTICATOR;
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.isA;
+import static org.mockito.Mockito.*;
 
-import org.easymock.EasyMockSupport;
 import org.janusgraph.graphdb.tinkerpop.gremlin.server.auth.HMACAuthenticator;
 import org.janusgraph.graphdb.tinkerpop.gremlin.server.auth.JanusGraphSimpleAuthenticator;
 import org.janusgraph.graphdb.tinkerpop.gremlin.server.auth.SaslAndHMACAuthenticator;
@@ -31,52 +30,60 @@ import io.netty.channel.ChannelPipeline;
 import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.HttpMessage;
 
-public class SaslAndHMACAuthenticationHandlerTest extends EasyMockSupport {
+public class SaslAndHMACAuthenticationHandlerTest {
 
     @Test
     public void testHttpChannelReadWhenAuthenticatorHasNotBeenAdded() throws Exception {
-        final HMACAuthenticator hmacAuth = createMock(HMACAuthenticator.class);
-        final SaslAndHMACAuthenticator authenticator = createMock(SaslAndHMACAuthenticator.class);
-        final ChannelHandlerContext ctx = createMock(ChannelHandlerContext.class);
-        final ChannelPipeline pipeline = createMock(ChannelPipeline.class);
-        final HttpMessage msg = createMock(HttpMessage.class);
-        final HttpHeaders headers = createMock(HttpHeaders.class);
+        final HMACAuthenticator hmacAuth = mock(HMACAuthenticator.class);
+        final SaslAndHMACAuthenticator authenticator = mock(SaslAndHMACAuthenticator.class);
+        final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
+        final ChannelPipeline pipeline = mock(ChannelPipeline.class);
+        final HttpMessage msg = mock(HttpMessage.class);
+        final HttpHeaders headers = mock(HttpHeaders.class);
 
-        expect(authenticator.getHMACAuthenticator()).andReturn(hmacAuth);
-        expect(authenticator.getSimpleAuthenticator()).andReturn(createMock(JanusGraphSimpleAuthenticator.class));
-        expect(ctx.pipeline()).andReturn(pipeline).times(2);
-        expect(pipeline.get("hmac_authenticator")).andReturn(null);
-        expect(pipeline.addAfter(eq(PIPELINE_AUTHENTICATOR), eq("hmac_authenticator"), isA(ChannelHandler.class))).andReturn(null);
-        expect(msg.headers()).andReturn(headers).times(2);
-        expect(headers.get(isA(String.class))).andReturn(null).times(2);
-        expect(ctx.fireChannelRead(eq(msg))).andReturn(ctx);
-        replayAll();
+        when(authenticator.getHMACAuthenticator()).thenReturn(hmacAuth);
+        when(authenticator.getSimpleAuthenticator()).thenReturn(mock(JanusGraphSimpleAuthenticator.class));
+        when(ctx.pipeline()).thenReturn(pipeline);
+        when(pipeline.get("hmac_authenticator")).thenReturn(null);
+        when(pipeline.addAfter(eq(PIPELINE_AUTHENTICATOR), eq("hmac_authenticator"), isA(ChannelHandler.class))).thenReturn(null);
+        when(msg.headers()).thenReturn(headers);
+        when(headers.get(anyString())).thenReturn(null);
+        when(ctx.fireChannelRead(eq(msg))).thenReturn(ctx);
 
         final SaslAndHMACAuthenticationHandler handler = new SaslAndHMACAuthenticationHandler(authenticator, null);
         handler.channelRead(ctx, msg);
+
+        verify(ctx, times(2)).pipeline();
+        verify(msg, times(2)).headers();
+        verify(headers, times(2)).get(isA(String.class));
     }
 
     @Test
     public void testHttpChannelReadWhenAuthenticatorHasBeenAdded() throws Exception {
-        final SaslAndHMACAuthenticator authenticator = createMock(SaslAndHMACAuthenticator.class);
-        final HMACAuthenticator hmacAuth = createMock(HMACAuthenticator.class);
-        final ChannelHandlerContext ctx = createMock(ChannelHandlerContext.class);
-        final ChannelHandler mockHandler = createMock(ChannelHandler.class);
-        final ChannelPipeline pipeline = createMock(ChannelPipeline.class);
-        final HttpMessage msg = createMock(HttpMessage.class);
-        final HttpHeaders headers = createMock(HttpHeaders.class);
+        final SaslAndHMACAuthenticator authenticator = mock(SaslAndHMACAuthenticator.class);
+        final HMACAuthenticator hmacAuth = mock(HMACAuthenticator.class);
+        final ChannelHandlerContext ctx = mock(ChannelHandlerContext.class);
+        final ChannelHandler mockHandler = mock(ChannelHandler.class);
+        final ChannelPipeline pipeline = mock(ChannelPipeline.class);
+        final HttpMessage msg = mock(HttpMessage.class);
+        final HttpHeaders headers = mock(HttpHeaders.class);
 
-        expect(authenticator.getHMACAuthenticator()).andReturn(hmacAuth);
-        expect(authenticator.getSimpleAuthenticator()).andReturn(createMock(JanusGraphSimpleAuthenticator.class));
-        expect(ctx.pipeline()).andReturn(pipeline);
-        expect(pipeline.get("hmac_authenticator")).andReturn(mockHandler);
-        expect(msg.headers()).andReturn(headers).times(2);
-        expect(headers.get(isA(String.class))).andReturn(null).times(2);
-        expect(ctx.fireChannelRead(eq(msg))).andReturn(ctx);
-        replayAll();
+        when(authenticator.getHMACAuthenticator()).thenReturn(hmacAuth);
+        when(authenticator.getSimpleAuthenticator()).thenReturn(mock(JanusGraphSimpleAuthenticator.class));
+        when(ctx.pipeline()).thenReturn(pipeline);
+        when(pipeline.get("hmac_authenticator")).thenReturn(mockHandler);
+        when(msg.headers()).thenReturn(headers);
+        when(headers.get(anyString())).thenReturn(null);
+        when(ctx.fireChannelRead(eq(msg))).thenReturn(ctx);
 
         final SaslAndHMACAuthenticationHandler handler = new SaslAndHMACAuthenticationHandler(authenticator, null);
         handler.channelRead(ctx, msg);
+
+        verify(ctx, times(1)).pipeline();
+        verify(pipeline, times(1)).get(anyString());
+        verify(msg, times(2)).headers();
+        verify(headers, times(2)).get(isA(String.class));
+        verify(ctx, times(1)).fireChannelRead(any());
     }
 
 }

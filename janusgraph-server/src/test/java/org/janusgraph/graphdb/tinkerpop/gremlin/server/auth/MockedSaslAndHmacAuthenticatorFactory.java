@@ -18,10 +18,7 @@ import org.janusgraph.core.JanusGraph;
 
 import java.util.Map;
 
-import static org.easymock.EasyMock.createMockBuilder;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.isA;
-import static org.easymock.EasyMock.replay;
+import static org.mockito.Mockito.*;
 
 public class MockedSaslAndHmacAuthenticatorFactory implements MockedJanusGraphAuthenticatorFactory {
 
@@ -35,16 +32,11 @@ public class MockedSaslAndHmacAuthenticatorFactory implements MockedJanusGraphAu
         final HMACAuthenticator hmacAuthenticator =
             (HMACAuthenticator) hmacFactory.createInitializedAuthenticator(config, graph);
 
-        SaslAndHMACAuthenticator authenticator = createMockBuilder(SaslAndHMACAuthenticator.class)
-            .addMockedMethod("openGraph")
-            .addMockedMethod("createSimpleAuthenticator")
-            .addMockedMethod("createHMACAuthenticator")
-            .createMock();
+        SaslAndHMACAuthenticator authenticator = spy(SaslAndHMACAuthenticator.class);
 
-        expect(authenticator.createSimpleAuthenticator()).andReturn(jsa);
-        expect(authenticator.createHMACAuthenticator()).andReturn(hmacAuthenticator);
-        expect(authenticator.openGraph(isA(String.class))).andReturn(graph);
-        replay(authenticator);
+        doReturn(jsa).when(authenticator).createSimpleAuthenticator();
+        doReturn(hmacAuthenticator).when(authenticator).createHMACAuthenticator();
+        doReturn(graph).when(authenticator).openGraph(anyString());
         return authenticator;
     }
 }

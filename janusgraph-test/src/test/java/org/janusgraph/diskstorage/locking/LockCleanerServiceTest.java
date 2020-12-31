@@ -14,20 +14,6 @@
 
 package org.janusgraph.diskstorage.locking;
 
-import static org.easymock.EasyMock.eq;
-import static org.easymock.EasyMock.expect;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.concurrent.ExecutorService;
-
-import org.janusgraph.diskstorage.util.time.TimestampProviders;
-import org.easymock.EasyMock;
-import org.easymock.IMocksControl;
-import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 import org.janusgraph.diskstorage.keycolumnvalue.KeyColumnValueStore;
 import org.janusgraph.diskstorage.keycolumnvalue.StoreTransaction;
 import org.janusgraph.diskstorage.locking.consistentkey.ConsistentKeyLockerSerializer;
@@ -36,32 +22,38 @@ import org.janusgraph.diskstorage.locking.consistentkey.StandardLockCleanerRunna
 import org.janusgraph.diskstorage.locking.consistentkey.StandardLockCleanerService;
 import org.janusgraph.diskstorage.util.KeyColumn;
 import org.janusgraph.diskstorage.util.StaticArrayBuffer;
+import org.janusgraph.diskstorage.util.time.TimestampProviders;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
+
+import java.time.Duration;
+import java.time.Instant;
+import java.util.concurrent.ExecutorService;
+
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.BDDMockito.then;
+import static org.mockito.Mockito.mock;
 
 public class LockCleanerServiceTest {
-    private IMocksControl ctrl;
     private KeyColumnValueStore store;
     private StoreTransaction tx;
     private ExecutorService exec;
     private LockCleanerService svc;
+    private InOrder inOrder;
 
     private final ConsistentKeyLockerSerializer codec = new ConsistentKeyLockerSerializer();
     private final KeyColumn kc = new KeyColumn(
-            new StaticArrayBuffer(new byte[]{(byte) 1}),
-            new StaticArrayBuffer(new byte[]{(byte) 2}));
+        new StaticArrayBuffer(new byte[]{(byte) 1}),
+        new StaticArrayBuffer(new byte[]{(byte) 2}));
 
     @BeforeEach
     public void setupMocks() {
-        IMocksControl relaxedCtrl = EasyMock.createControl();
-        tx = relaxedCtrl.createMock(StoreTransaction.class);
-
-        ctrl = EasyMock.createStrictControl();
-        store = ctrl.createMock(KeyColumnValueStore.class);
-        exec = ctrl.createMock(ExecutorService.class);
-    }
-
-    @AfterEach
-    public void verifyMocks() {
-        ctrl.verify();
+        tx = mock(StoreTransaction.class);
+        store = mock(KeyColumnValueStore.class);
+        exec = mock(ExecutorService.class);
+        inOrder = Mockito.inOrder(exec);
     }
 
     @Test
@@ -70,13 +62,11 @@ public class LockCleanerServiceTest {
 
         svc = new StandardLockCleanerService(store, codec, exec, Duration.ofSeconds(60L), TimestampProviders.MILLI);
 
-        expect(exec.submit(eq(new StandardLockCleanerRunnable(store, kc, tx, codec, cutoff, TimestampProviders.MILLI)))).andReturn(null);
-
-        ctrl.replay();
-
         for (int i = 0; i < 500; i++) {
             svc.clean(kc, cutoff, tx);
         }
+
+        then(exec).should(inOrder).submit(eq(new StandardLockCleanerRunnable(store, kc, tx, codec, cutoff, TimestampProviders.MILLI)));
     }
 
     @Test
@@ -85,12 +75,6 @@ public class LockCleanerServiceTest {
 
         Duration wait = Duration.ofMillis(500L);
         svc = new StandardLockCleanerService(store, codec, exec, wait, TimestampProviders.MILLI);
-
-        expect(exec.submit(eq(new StandardLockCleanerRunnable(store, kc, tx, codec, cutoff, TimestampProviders.MILLI)))).andReturn(null);
-
-        expect(exec.submit(eq(new StandardLockCleanerRunnable(store, kc, tx, codec, cutoff.plusMillis(1), TimestampProviders.MILLI)))).andReturn(null);
-
-        ctrl.replay();
 
         for (int i = 0; i < 2; i++) {
             svc.clean(kc, cutoff, tx);
@@ -101,5 +85,8 @@ public class LockCleanerServiceTest {
         for (int i = 0; i < 2; i++) {
             svc.clean(kc, cutoff.plusMillis(1), tx);
         }
+
+        then(exec).should(inOrder).submit(eq(new StandardLockCleanerRunnable(store, kc, tx, codec, cutoff, TimestampProviders.MILLI)));
+        then(exec).should(inOrder).submit(eq(new StandardLockCleanerRunnable(store, kc, tx, codec, cutoff.plusMillis(1), TimestampProviders.MILLI)));
     }
 }

@@ -15,6 +15,7 @@
 package org.janusgraph.graphdb.tinkerpop.gremlin.server.auth;
 
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
 
 import java.net.InetAddress;
 
@@ -44,7 +45,7 @@ public class SaslAndHMACAuthenticatorTest extends JanusGraphAbstractAuthenticato
 
     @Test
     public void testNewSaslNegotiatorInet() {
-        final InetAddress inet = createMock(InetAddress.class);
+        final InetAddress inet = mock(InetAddress.class);
         assertThrows(RuntimeException.class, () -> new SaslAndHMACAuthenticator().newSaslNegotiator(inet));
     }
 
