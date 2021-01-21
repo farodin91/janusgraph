@@ -40,7 +40,6 @@ It also includes software from other open source projects including, but not lim
  * Kryo [https://github.com/EsotericSoftware/kryo]
  * Metrics [https://metrics.dropwizard.io]
  * Mockito [https://site.mockito.org/]
- * Noggit [https://github.com/yonik/noggit]
  * OpenRDF [http://rdf4j.org/]
  * Oracle BerkeleyDB Java Edition [https://www.oracle.com/technetwork/products/berkeleydb/] (see license below)
  * Project Lombok [https://projectlombok.org/]
