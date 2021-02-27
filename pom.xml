@@ -89,7 +89,6 @@
         <jackson2.version>2.12.1</jackson2.version>
         <lucene-solr.version>8.6.2</lucene-solr.version>
         <elasticsearch.version>7.11.1</elasticsearch.version>
-        <commons.beanutils.version>1.8.3</commons.beanutils.version>
         <commons.collections.version>3.2.2</commons.collections.version>
         <zookeeper.version>3.5.7</zookeeper.version>
         <!-- align with org.apache.tinkerpop:tinkerpop -->
@@ -549,11 +548,6 @@
             <!-- Jackson 1.x -->
             <dependency>
                 <groupId>org.codehaus.jackson</groupId>
-                <artifactId>jackson-mapper-asl</artifactId>
-                <version>${jackson1.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>org.codehaus.jackson</groupId>
                 <artifactId>jackson-core-asl</artifactId>
                 <version>${jackson1.version}</version>
             </dependency>
@@ -567,6 +561,7 @@
                 <artifactId>jackson-jaxrs</artifactId>
                 <version>${jackson1.version}</version>
             </dependency>
+
             <dependency>
                 <groupId>org.apache.commons</groupId>
                 <artifactId>commons-lang3</artifactId>
@@ -586,16 +581,6 @@
                 <groupId>commons-net</groupId>
                 <artifactId>commons-net</artifactId>
                 <version>3.7.2</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils</artifactId>
-                <version>${commons.beanutils.version}</version>
-            </dependency>
-            <dependency>
-                <groupId>commons-beanutils</groupId>
-                <artifactId>commons-beanutils-core</artifactId>
-                <version>${commons.beanutils.version}</version>
             </dependency>
             <dependency>
                 <groupId>commons-logging</groupId>

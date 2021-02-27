@@ -35,7 +35,7 @@
                 <!-- Avoid being overwritten by the top level pom. Used here only by the HBase server. -->
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
-                <version>14.0</version>
+                <version>29.0-jre</version>
             </dependency>
             <dependency>
                 <groupId>org.jruby.jcodings</groupId>
