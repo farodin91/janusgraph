@@ -113,7 +113,7 @@
                 <configuration>
                     <systemPropertyVariables>
                         <log4j.configuration>file:${project.build.testOutputDirectory}/log4j.properties</log4j.configuration>
-                        <hbase.docker.version>${hbase.docker.version}</hbase.docker.version>
+                        <hbase.docker.version>1.6.0</hbase.docker.version>
                         <hbase.docker.uid>${hbase.docker.uid}</hbase.docker.uid>
                         <hbase.docker.gid>${hbase.docker.gid}</hbase.docker.gid>
                         <test.hbase.targetdir>${test.hbase.targetdir}</test.hbase.targetdir>
