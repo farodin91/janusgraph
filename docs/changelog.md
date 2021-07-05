@@ -325,6 +325,9 @@ distance, where previously they used the backend's default max distance of 2:
 | surprises | surpprises | true | true |
 | surprises | surpprisess | false | false |
 
+##### Drop support for HBase 1
+
+We are dropping support for HBase 1.
 
 ### Version 0.5.3 (Release Date: December 24, 2020)
 

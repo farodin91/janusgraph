@@ -61,24 +61,24 @@ jobs:
       matrix:
         include:
           - module: hbase
-            args: "-Dtest=\"**/diskstorage/hbase/*\""
+            install-args: "-Dhbase1.profile"
+            args: "-Dtest=\"**/diskstorage/hbase/*\" -Dhbase1.profile"
             name: hbase1-diskstorage
           - module: hbase
-            args: "-Dtest=\"**/graphdb/hbase/*\""
+            install-args: "-Dhbase1.profile"
+            args: "-Dtest=\"**/graphdb/hbase/*\" -Dhbase1.profile"
             name: hbase1-graphdb
           - module: hbase
-            args: "-Dtest=\"**/hadoop/*\""
+            install-args: "-Dhbase1.profile"
+            args: "-Dtest=\"**/hadoop/*\" -Dhbase1.profile"
             name: hbase1-hadoop
           - module: hbase
-            install-args: "-Dhbase.profile -Phbase2"
             args: "-Dtest=\"**/diskstorage/hbase/*\""
             name: hbase2-diskstorage
           - module: hbase
-            install-args: "-Dhbase.profile -Phbase2"
             args: "-Dtest=\"**/graphdb/hbase/*\""
             name: hbase2-graphdb
           - module: hbase
-            install-args: "-Dhbase.profile -Phbase2"
             args: "-Dtest=\"**/hadoop/*\""
             name: hbase2-hadoop
     steps:
